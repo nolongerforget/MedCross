@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
-import { FaCloudUploadAlt, FaFileAlt, FaTimesCircle } from "react-icons/fa";
+import { FaCloudUploadAlt, FaFileAlt, FaTimesCircle, FaNetworkWired } from "react-icons/fa";
+import { FaEthereum } from "react-icons/fa6";
 
 /**
  * 数据上传页面
@@ -16,7 +17,7 @@ export default function DataUploadPage() {
   const [dataType, setDataType] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
-  const [isConfidential, setIsConfidential] = useState(false);
+  const [targetChain, setTargetChain] = useState('ethereum'); // 默认选择以太坊链
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -56,6 +57,11 @@ export default function DataUploadPage() {
       alert("请填写数据描述！");
       return;
     }
+    
+    if (!targetChain) {
+      alert("请选择目标区块链！");
+      return;
+    }
 
     // 开始上传
     setIsUploading(true);
@@ -78,8 +84,8 @@ export default function DataUploadPage() {
     console.log("上传文件:", file);
     console.log("数据类型:", dataType);
     console.log("数据描述:", description);
-    console.log("标签:", tags);
-    console.log("是否机密:", isConfidential);
+    console.log("关键词:", tags);
+    console.log("目标区块链:", targetChain);
   };
 
   return (
@@ -92,7 +98,6 @@ export default function DataUploadPage() {
           <Link to="/data-upload" className="text-blue-400">数据上传</Link>
           <Link to="/data-query" className="hover:text-blue-400">数据查询</Link>
           <Link to="/profile" className="hover:text-blue-400">个人中心</Link>
-          <Link to="/blockchain-records" className="hover:text-blue-400">区块链记录</Link>
         </div>
       </nav>
 
@@ -147,6 +152,33 @@ export default function DataUploadPage() {
               )}
             </div>
             
+            {/* 选择目标区块链 */}
+            <div className="mt-6">
+              <h3 className="text-xl font-bold mb-4">选择目标区块链</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div 
+                  className={`p-4 rounded-lg cursor-pointer flex items-center ${targetChain === 'ethereum' ? 'bg-blue-800 border-2 border-blue-400' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  onClick={() => setTargetChain('ethereum')}
+                >
+                  <FaEthereum className="text-3xl text-blue-400 mr-3" />
+                  <div>
+                    <p className="font-medium">以太坊</p>
+                    <p className="text-sm text-gray-400">适合元数据和访问控制</p>
+                  </div>
+                </div>
+                <div 
+                  className={`p-4 rounded-lg cursor-pointer flex items-center ${targetChain === 'fabric' ? 'bg-blue-800 border-2 border-blue-400' : 'bg-gray-700 hover:bg-gray-600'}`}
+                  onClick={() => setTargetChain('fabric')}
+                >
+                  <FaNetworkWired className="text-3xl text-blue-400 mr-3" />
+                  <div>
+                    <p className="font-medium">Hyperledger Fabric</p>
+                    <p className="text-sm text-gray-400">适合详细医疗数据记录</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             {/* 右侧元数据填写区域 */}
             <div>
               <h3 className="text-xl font-bold mb-4">数据信息</h3>
@@ -179,7 +211,7 @@ export default function DataUploadPage() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-1">标签（用逗号分隔）</label>
+                  <label className="block text-sm font-medium mb-1">关键词（用逗号分隔）</label>
                   <Input
                     type="text"
                     placeholder="例如：心脏病,急诊,2024年"
@@ -187,17 +219,7 @@ export default function DataUploadPage() {
                     onChange={(e) => setTags(e.target.value)}
                     className="w-full bg-gray-700 border-gray-600"
                   />
-                </div>
-                
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="confidential"
-                    checked={isConfidential}
-                    onChange={(e) => setIsConfidential(e.target.checked)}
-                    className="mr-2"
-                  />
-                  <label htmlFor="confidential">标记为机密数据（仅授权用户可访问）</label>
+                  <p className="text-sm text-gray-400 mt-1">关键词将用于跨链数据查询</p>
                 </div>
               </div>
             </div>
@@ -209,7 +231,7 @@ export default function DataUploadPage() {
               disabled={!file || isUploading}
               className="bg-blue-500 hover:bg-blue-600 px-8 py-2 text-lg disabled:bg-gray-600 disabled:cursor-not-allowed"
             >
-              {isUploading ? '上传中...' : '上传数据'}
+              {isUploading ? '上传中...' : `上传到${targetChain === 'ethereum' ? '以太坊' : 'Fabric'}链`}
             </Button>
           </div>
         </Card>
@@ -222,7 +244,7 @@ export default function DataUploadPage() {
             <p>2. 上传前请移除所有可能的患者身份标识信息，除非您已获得适当授权。</p>
             <p>3. 所有上传的数据将通过区块链技术进行记录，确保数据溯源和不可篡改性。</p>
             <p>4. 您可以在上传后通过授权管理页面控制谁可以访问您的数据。</p>
-            <p>5. 标记为机密的数据将采用额外的加密措施进行保护。</p>
+            <p>5. 不同区块链适用于不同场景：以太坊适合元数据和访问控制，Fabric适合详细医疗数据。</p>
           </div>
         </Card>
       </div>

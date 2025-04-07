@@ -64,7 +64,6 @@ export default function DataDetailPage() {
           <Link to="/data-upload" className="hover:text-blue-400">数据上传</Link>
           <Link to="/data-query" className="hover:text-blue-400">数据查询</Link>
           <Link to="/profile" className="hover:text-blue-400">个人中心</Link>
-          <Link to="/blockchain-records" className="hover:text-blue-400">区块链记录</Link>
         </div>
       </nav>
 
@@ -102,12 +101,6 @@ export default function DataDetailPage() {
             onClick={() => setActiveTab('auth')}
           >
             <FaKey className="inline mr-2" /> 授权历史
-          </button>
-          <button
-            className={`py-2 px-4 ${activeTab === 'blockchain' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
-            onClick={() => setActiveTab('blockchain')}
-          >
-            <FaHistory className="inline mr-2" /> 区块链记录
           </button>
         </div>
 

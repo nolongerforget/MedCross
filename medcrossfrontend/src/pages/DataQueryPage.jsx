@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardContent } from "../components/ui/card";
-import { FaSearch, FaFilter, FaFileAlt, FaDna, FaImage, FaFileMedical, FaEye } from "react-icons/fa";
+import { FaSearch, FaFilter, FaFileAlt, FaDna, FaImage, FaFileMedical, FaEye, FaNetworkWired } from "react-icons/fa";
+import { FaEthereum } from "react-icons/fa6";
 
 /**
  * 数据查询页面
@@ -19,6 +20,7 @@ export default function DataQueryPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [chainSource, setChainSource] = useState('all'); // 区块链源筛选
   
   // 模拟从API获取数据
   useEffect(() => {
@@ -33,7 +35,8 @@ export default function DataQueryPage() {
         owner: '张医生',
         hospital: '协和医院',
         description: '患者王某某的心电图检查数据，采集于2024年6月10日。',
-        tags: ['心脏病', '急诊', '2024年']
+        tags: ['心脏病', '急诊', '2024年'],
+        chain: 'ethereum'
       },
       {
         id: '2',
@@ -44,7 +47,8 @@ export default function DataQueryPage() {
         owner: '李医生',
         hospital: '人民医院',
         description: '患者张某某的完整病历记录，包含既往病史和当前治疗方案。',
-        tags: ['内科', '慢性病', '随访']
+        tags: ['内科', '慢性病', '随访'],
+        chain: 'fabric'
       },
       {
         id: '3',
@@ -55,7 +59,8 @@ export default function DataQueryPage() {
         owner: '王研究员',
         hospital: '医学研究中心',
         description: '肿瘤患者基因测序数据，用于精准医疗研究。',
-        tags: ['肿瘤', '基因测序', '精准医疗']
+        tags: ['肿瘤', '基因测序', '精准医疗'],
+        chain: 'ethereum'
       },
       {
         id: '4',
@@ -66,7 +71,8 @@ export default function DataQueryPage() {
         owner: '赵医生',
         hospital: '第三医院',
         description: '肺部CT扫描图像，用于肺炎诊断。',
-        tags: ['肺炎', 'CT', '影像学']
+        tags: ['肺炎', 'CT', '影像学'],
+        chain: 'fabric'
       },
       {
         id: '5',
@@ -77,7 +83,8 @@ export default function DataQueryPage() {
         owner: '刘药师',
         hospital: '中心医院',
         description: '2024年5月门诊处方数据汇总，用于药物使用分析。',
-        tags: ['处方', '药物', '统计分析']
+        tags: ['处方', '药物', '统计分析'],
+        chain: 'ethereum'
       },
     ];
     
@@ -91,6 +98,16 @@ export default function DataQueryPage() {
     // 模拟API请求延迟
     setTimeout(() => {
       // 在实际应用中，这里应该调用后端API进行查询
+      // 请求参数应包含：关键词、数据类型、日期范围、排序方式、区块链源
+      console.log("执行跨链查询:", {
+        keyword: searchQuery,
+        dataType: selectedType,
+        dateRange: dateRange,
+        sortBy: sortBy,
+        chainSource: chainSource
+      });
+      
+      // 模拟从API获取数据
       let filteredResults = [...searchResults];
       
       // 按关键词筛选
@@ -105,6 +122,11 @@ export default function DataQueryPage() {
       // 按数据类型筛选
       if (selectedType !== 'all') {
         filteredResults = filteredResults.filter(item => item.dataType === selectedType);
+      }
+      
+      // 按区块链源筛选
+      if (chainSource !== 'all') {
+        filteredResults = filteredResults.filter(item => item.chain === chainSource);
       }
       
       // 按日期范围筛选
@@ -150,6 +172,7 @@ export default function DataQueryPage() {
     setSelectedType('all');
     setDateRange({ start: '', end: '' });
     setSortBy('newest');
+    setChainSource('all'); // 重置区块链源筛选
   };
 
   return (
@@ -162,7 +185,6 @@ export default function DataQueryPage() {
           <Link to="/data-upload" className="hover:text-blue-400">数据上传</Link>
           <Link to="/data-query" className="text-blue-400">数据查询</Link>
           <Link to="/profile" className="hover:text-blue-400">个人中心</Link>
-          <Link to="/blockchain-records" className="hover:text-blue-400">区块链记录</Link>
         </div>
       </nav>
 
@@ -193,6 +215,15 @@ export default function DataQueryPage() {
             >
               <FaFilter className="mr-2" /> 筛选
             </Button>
+            <select
+              value={chainSource}
+              onChange={(e) => setChainSource(e.target.value)}
+              className="bg-gray-700 border border-gray-600 rounded-md p-2"
+            >
+              <option value="all">所有区块链</option>
+              <option value="ethereum">仅以太坊</option>
+              <option value="fabric">仅Fabric</option>
+            </select>
           </div>
           
           {/* 高级筛选选项 */}
@@ -285,7 +316,14 @@ export default function DataQueryPage() {
                       </div>
                       <div>
                         <h4 className="font-bold truncate">{item.fileName}</h4>
-                        <p className="text-sm text-gray-400">{item.dataType} • {item.fileSize}</p>
+                        <div className="flex items-center">
+                          <p className="text-sm text-gray-400">{item.dataType} • {item.fileSize}</p>
+                          <span className="ml-2 flex items-center text-xs px-2 py-1 rounded-full bg-gray-700">
+                            {item.chain === 'ethereum' ? 
+                              <><FaEthereum className="mr-1 text-blue-400" /> 以太坊</> : 
+                              <><FaNetworkWired className="mr-1 text-green-400" /> Fabric</>}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     
